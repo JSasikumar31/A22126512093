@@ -35,7 +35,6 @@ const getToken = async () => {
   }
 };
 
-// Function to fetch  from API
 const fetchData = async (type) => {
   try {
     if (!accessToken || Date.now() >= tokenExpiry) {
@@ -47,7 +46,7 @@ const fetchData = async (type) => {
 
     const response = await axios.get(url, {
       headers: { Authorization: `Bearer ${accessToken}` },
-      timeout: 500, // Ignore responses taking longer than 500ms
+      timeout: 500,
     });
 
     console.log("Data fetched successfully!");
@@ -58,7 +57,6 @@ const fetchData = async (type) => {
   }
 };
 
- //`/numbers/{numberid}`
 app.get("/numbers/:type", async (req, res) => {
   const { type } = req.params;
 
@@ -66,19 +64,14 @@ app.get("/numbers/:type", async (req, res) => {
     return res.status(400).json({ error: "Invalid number type. Use 'p', 'f', 'e', or 'r'." });
   }
 
-  // Save previous state
   const windowPrevState = [...numberWindow];
 
-  // Fetch new numbers
   const newNumbers = await fetchData(type);
 
-//duplicate
   const uniqueNumbers = newNumbers.filter((num) => !numberWindow.includes(num));
 
-  // Add only unique numbers 
   numberWindow.push(...uniqueNumbers);
 
-  // Maintain sliding window 
   if (numberWindow.length > windowSize) {
     numberWindow = numberWindow.slice(-windowSize);
   }
@@ -89,13 +82,12 @@ app.get("/numbers/:type", async (req, res) => {
   res.json({
     windowPrevState,
     windowCurrState: numberWindow,
-    numbers: uniqueNumbers, // ✅ Now only contains newly fetched numbers
+    numbers: uniqueNumbers, 
     avg: avg.toFixed(2),
 });
 
 });
 
-// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
